@@ -11,7 +11,7 @@ app.use(express.json());
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 // const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.swu9d.mongodb.net/?retryWrites=true&w=majority`;
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.b9hcdyj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -31,6 +31,19 @@ async function run() {
 
     const productCollection = client.db('emaJohnDB').collection('products');
 
+    app.post('/productsByIds', async(req, res)=>{
+      const ids= req.body;
+      console.log('ids', ids)
+      const idWithObjectId = ids.map(id=>new ObjectId(id));
+      const query = {
+        _id: {
+          $in:idWithObjectId
+        }
+      }
+      const result = await productCollection.find(query).toArray();
+
+      res.send(result);
+    })
     app.get('/products', async(req, res) => {
       const page =parseInt(req.query.page)
       const size =parseInt(req.query.size)
